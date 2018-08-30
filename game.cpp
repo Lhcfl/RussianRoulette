@@ -15,6 +15,14 @@ void mod(string s){
     cout<<s<<"\n";
     cout<<"------------------\n\n";
 }
+string getTime()
+{
+    time_t timep;
+    time (&timep);
+    char tmp[64];
+    strftime(tmp, sizeof(tmp), "%Y-%m-%d %H:%M:%S",localtime(&timep) );
+    return tmp;
+}
 string randname(){
 	srand((unsigned)time(0));
 	int x=rand()%150+1;
@@ -173,7 +181,7 @@ string randname(){
 }
 void loaduser(){
     mod("载入数据");
-    ifstream fin("data");
+    ifstream fin("data.dll");
     string s;
     if(!(fin>>s)){
         cout<<"配置数据未找到。你是第一次玩吗？\n";
@@ -183,7 +191,7 @@ res:    cout<<"请输入你的用户名(不支持空格):";
         user.name=tmp_in;
         user.coin=200;
         user.isdead=0;
-        ofstream fout("data");
+        ofstream fout("data.dll");
         fout<<user.name<<endl;
         fout<<user.coin<<endl;
         fout<<0;
@@ -257,8 +265,9 @@ void play(){
 					user.coin+=player[ren].coin/numofper;
 					cout<<"你获得了"<<(int)(player[ren].coin/numofper)<<"金币.\n";
 					numofper--;
+					cout<<"现在场上还有"<<numofper<<"人\n";
 				}else{
-					cout<<"结果没事。\n";
+					cout<<"这枪是空的\n"<<player[ren].name<<"没事\n\n";
 				}
 
 			}else{
@@ -280,17 +289,17 @@ id3:			cin>>s;
 						user.isdead=true;
 						cout<<player[ren].name<<" 死亡。\n";
 						cout<<"\n\n\nYou Lose!!\n\n";
-						ofstream fout("data");
+						ofstream fout("data.dll");
         				fout<<user.name<<endl;
         				fout<<user.coin<<endl;
         				fout<<1;
         				return;
 					}else{
-						cout<<"结果没事。\n";
+						cout<<"这枪是空的\n";
 					}
 				}
 				if(s=="y"){
-					cout<<"你躲过了。";
+					cout<<"你躲过了。\n";
 					user.coin/=2;
 					p--;
 				}
@@ -304,12 +313,23 @@ id3:			cin>>s;
 					user.isdead=true;
 					cout<<player[ren].name<<" 死亡。\n";
 					cout<<"\n\n\nYou Lose!!\n\n";
-					ofstream fout("data");
+					ofstream fout("data.dll");
         			fout<<user.name<<endl;
         			fout<<user.coin<<endl;
         			fout<<1;
+        			string timenow=getTime();
+					ofstream newfout(user.name+"的墓碑.txt");
+					newfout<<"------------------------------\n";
+					newfout<<user.name<<endl<<endl;
+					newfout<<"在"<<timenow<<endl;
+					newfout<<"玩俄罗斯轮盘时死亡。\n";
+					newfout<<"TA死时还有"<<user.coin<<"金币\n\n";
+					newfout<<"这个故事告诉我们\n要珍爱生命！\n";
+					newfout<<"------------------------------\n";
         			return;
-        		}
+        		}else{
+        			cout<<"这枪是空的\n";
+				}
 			}
 		}
 		p++;
@@ -320,7 +340,7 @@ id3:			cin>>s;
 		_sleep(1000);
 	}
 	cout<<"本局结束。你有了"<<user.coin<<"金币。\n";
-	ofstream fout("data");
+	ofstream fout("data.dll");
     fout<<user.name<<endl;
     fout<<user.coin<<endl;
     fout<<0;
@@ -403,12 +423,18 @@ id2:    cout<<"输入子弹数（范围：1-5）:\n";
 	system("cls");
 	play();
 	system("pause");
-id4:if(user.isdead){return 0;}
+id4:if(user.isdead){
+		
+		return 0;
+	}
 	cout<<"想再玩一局吗？(y/n)";
 	cin>>s;
 
 	if(s=="n"){cout<<"Bye!";}
 	if(s=="y"){
+		for(int i=1;i<=gunnum;i++){
+			liu[i]=0;
+		}
 		system("cls");
 		goto id5;
 	}
